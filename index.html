@@ -127,6 +127,8 @@
       console.error(err);
     } finally {
       output.style.background = '#ffe9e9';
+      setTimeout(() => (output.style.background = ''), 1000);
+      console.log('Calculation attempt completed.');
     }
     
     });
