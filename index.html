@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   <title>Lab 9</title>
 
   <style>
@@ -69,39 +70,108 @@
     </form>
 
     <section id="error-btns">
-      <button>Console Log</button>
-      <button>Console Error</button>
-      <button>Console Count</button>
-      <button>Console Warn</button>
-      <button>Console Assert</button>
-      <button>Console Clear</button>
-      <button>Console Dir</button>
-      <button>Console dirxml</button>
-      <button>Console Group Start</button>
-      <button>Console Group End</button>
-      <button>Console Table</button>
-      <button>Start Timer</button>
-      <button>End Timer</button>
-      <button>Console Trace</button>
-      <button>Trigger a Global Error</button>
+      <button id="log">Console Log</button>
+      <button id="error">Console Error</button>
+      <button id="count">Console Count</button>
+      <button id="warn">Console Warn</button>
+      <button id="assert">Console Assert</button>
+      <button id="clear">Console Clear</button>
+      <button id="dir">Console Dir</button>
+      <button id="dirxml">Console dirxml</button>
+      <button id="group-start">Console Group Start</button>
+      <button id="group-end">Console Group End</button>
+      <button id="table">Console Table</button>
+      <button id="time-start">Start Timer</button>
+      <button id="time-end">End Timer</button>
+      <button id="trace">Console Trace</button>
+      <button id="global-error">Trigger a Global Error</button>
     </section>
   </main>
 
   <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "51259a61cd95435e9ae4669b41f9d73b"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+
+    class DivisionByZeroError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = 'DivisionByZeroError';
+      }
+    }
+
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
+
       let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
+
+      try{
+      if (firstNum.trim() === "" || secondNum.trim() === "") {
+        throw new SyntaxError("Both numbers are required!");
+      }
+      if (isNaN(firstNum) || isNaN(secondNum)) {
+        throw new SyntaxError("Both values must be numbers!");
+      }
+      if (operator === "/" && secondNum === "0") {
+        throw new DivisionByZeroError("Can't divide by zero, check again!");
+      }
       output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+    } catch(err) {
+      alert(err.message);
+      console.log(err.name + '\n' + err.message);
+      console.error(err);
+    } finally {
+      output.style.background = '#ffe9e9';
+    }
+    
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
     // Start your code here
     // You may move this JS to another file if you wish
+
+    const demos = {
+      log:   () => console.log("Console Log Demo", { example: 77 }),
+      error: () => console.error("Console Error Demo"),
+      count: () => console.count("Count Button Clicked"),
+      warn:  () => console.warn("Console Warn Demo"),
+      assert:() => console.assert(2 + 2 === 5, "Assertion failed: 2 + 2 !== 5"),
+      clear: () => console.clear(),
+      dir:   () => console.dir(document.querySelector('#error-btns #dirxml')),
+      dirxml:() => console.dirxml(document.querySelector('#error-btns #dirxml')),
+      "group-start": () => console.group(),
+      "group-end": () => console.groupEnd(),
+      table: () => console.table([{ Name: "Alice", Age: 23 }, { Name: "Bob", Age: 27 }]),
+      "time-start": () => console.time("Timer Demo"),
+      "time-end":   () => console.timeEnd("Timer Demo"),
+      trace: () => console.trace("Trace Button Clicked"),
+      "global-error": () => {
+        const button = document.querySelector('#error-btn #global-error');
+        button.addEventListener('click', undefinedFunction());
+      },
+    };
+
+    for (let i = 0; i < errorBtns.length; i++) {
+      let button = errorBtns[i];
+      button.addEventListener('click', function() {
+        let fn = demos[button.id];
+        if (typeof(fn) === 'function') {
+          fn();
+        }
+      });
+    }
+    window.addEventListener("error", (evt) => {
+      console.log("Global error caught:", evt.message);
+      if (window.TrackJS) TrackJS.track(evt.error || evt.message);
+      return false; /* let the browser log it too */
+    });
+
   </script>
 </body>
 
