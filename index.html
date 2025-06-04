@@ -138,6 +138,10 @@
     // Start your code here
     // You may move this JS to another file if you wish
 
+    function deep()    { deeper(); }
+    function deeper()  { deepest(); }
+    function deepest() { console.trace('Trace Button Clicked'); }
+
     const demos = {
       log:   () => console.log("Console Log Demo", { example: 77 }),
       error: () => console.error("Console Error Demo"),
@@ -152,7 +156,7 @@
       table: () => console.table([{ Name: "Alice", Age: 23 }, { Name: "Bob", Age: 27 }]),
       "time-start": () => console.time("Timer Demo"),
       "time-end":   () => console.timeEnd("Timer Demo"),
-      trace: () => console.trace("Trace Button Clicked"),
+      trace: () => deep(),
       "global-error": () => {
         const button = document.querySelector('#error-btn #global-error');
         button.addEventListener('click', undefinedFunction());
